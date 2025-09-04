@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compilando seu dia...</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --accent-color: #ff79c6; /* Rosa */
+            --keyword-color: #8be9fd; /* Ciano */
+            --string-color: #f1fa8c; /* Amarelo */
+            --comment-color: #6272a4; /* Cinza/Azul */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Fira Code', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Tela de Loading/Compilação --- */
+        #loading-screen {
+            width: 90%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        #loading-screen h1 {
+            color: var(--keyword-color);
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 5px var(--keyword-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 25px;
+            background-color: #0f101a;
+            border-radius: 15px;
+            border: 1px solid var(--comment-color);
+            padding: 4px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            margin-bottom: 1.5rem;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--keyword-color));
+            border-radius: 10px;
+            transition: width 0.5s ease-out;
+        }
+
+        #loading-text {
+            color: var(--string-color);
+            font-style: italic;
+            height: 20px; /* Evita que o layout pule */
+        }
+
+        /* --- Tela de Aniversário --- */
+        #birthday-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 1.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #birthday-card h1 {
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-color);
+            margin: 0;
+        }
+
+        #birthday-card p {
+            color: var(--comment-color);
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        
+        .code-snippet {
+            background-color: rgba(0,0,0,0.2);
+            border: 1px solid var(--comment-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .code-snippet pre { margin: 0; }
+        .code-snippet .keyword { color: var(--keyword-color); }
+        .code-snippet .variable { color: #fff; }
+        .code-snippet .string { color: var(--string-color); }
+        .code-snippet .boolean { color: var(--accent-color); }
+        .code-snippet .comment { color: var(--comment-color); }
+
+        .signature {
+            margin-top: 2rem;
+            font-style: italic;
+            color: var(--comment-color);
+        }
+
+        /* --- Canvas dos Confetes --- */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Permite clicar através do canvas */
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- TELA 1: A COMPILAÇÃO -->
+    <div id="loading-screen">
+        <h1>Compilando seu dia perfeito...</h1>
+        <div class="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <p id="loading-text">Inicializando módulos de amor...</p>
+    </div>
+
+    <!-- TELA 2: A SURPRESA (inicialmente oculta) -->
+    <div id="birthday-card" class="hidden">
+        <h1>Feliz Aniversário!</h1>
+        <p>Você não é um bug, é a minha feature favorita.</p>
+
+        <div class="code-snippet">
+            <pre><code><span class="comment">// meu-mundo.js</span>
+<span class="keyword">const</span> <span class="variable">voce</span> = {
+  nome: <span class="string">'JESSICA'</span>,
+  versao: <span class="string">'27.0'</span>,
+  incrivel: <span class="boolean">true</span>
+};
+
+<span class="keyword">if</span> (<span class="variable">voce</span>.<span class="variable">incrivel</span>) {
+  <span class="variable">eu</span>.<span class="variable">amarPraSempre</span>();
+}</code></pre>
+        </div>
+        <p class="signature">Com amor e código,<br>Mariana</p>
+    </div>
+    
+    <!-- O Canvas para a mágica dos confetes -->
+    <canvas id="confetti-canvas"></canvas>
+
+
+    <script>
+        // --- LÓGICA DA ANIMAÇÃO ---
+
+        // MENSAGENS FOFAS E ENGRAÇADAS (PERSONALIZE AQUI!)
+        const loadingMessages = [
+            "Compilando memórias felizes...",
+            "Resolvendo conflitos de 'onde vamos jantar?'...",
+            "Warning: Nível de fofura excedeu o limite do buffer.",
+            "Fazendo fetch de carinho na API do seu coração...",
+            "Adicionando 1TB de paciência (só pra garantir)...",
+            "Fazendo push do meu amor pro seu repositório...",
+            "Deploy concluído com sucesso!"
+        ];
+
+        const progressBar = document.getElementById('progress-bar');
+        const loadingText = document.getElementById('loading-text');
+        
+        let progress = 0;
+        let messageIndex = 0;
+
+        const interval = setInterval(() => {
+            progress += 15; // Aumenta o progresso
+            if (progress > 100) progress = 100;
+            progressBar.style.width = progress + '%';
+            
+            if (messageIndex < loadingMessages.length) {
+                loadingText.textContent = loadingMessages[messageIndex];
+                messageIndex++;
+            }
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                    document.getElementById('birthday-card').classList.remove('hidden');
+                    // Inicia a chuva de confetes!
+                    startConfetti();
+                }, 1000); // Espera 1 segundo antes de mostrar a surpresa
+            }
+        }, 800);
+
+        // --- LÓGICA DOS CONFETES NO CANVAS ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let confettiParticles = [];
+
+        const confettiColors = ['#ff79c6', '#8be9fd', '#f1fa8c', '#50fa7b', '#bd93f9'];
+
+        class ConfettiParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height; // Começa acima da tela
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 4 - 2;
+                this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                this.rotation = Math.random() * 360;
+                this.spin = Math.random() * 10 - 5;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.spin;
+            }
+            draw() {
+                ctx.save();
+                ctx.fillStyle = this.color;
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function startConfetti() {
+            for (let i = 0; i < 200; i++) {
+                confettiParticles.push(new ConfettiParticle());
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (confettiParticles.length > 0) {
+                 for (let i = 0; i < confettiParticles.length; i++) {
+                    confettiParticles[i].update();
+                    confettiParticles[i].draw();
+
+                    // Se a partícula sair da tela, a reinicia no topo
+                    if (confettiParticles[i].y > canvas.height + 10) {
+                        confettiParticles[i].y = -10;
+                        confettiParticles[i].x = Math.random() * canvas.width;
+                    }
+                }
+            }
+            requestAnimationFrame(animateConfetti);
+        }
+
+    </script>
+</body>
+</html>
+
